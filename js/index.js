@@ -1,45 +1,48 @@
 // const img = document.getElementById("img") ; 
 
 
-domFunction();
+
 
 // Appel API
+domFunction(); 
+
 async function Articles() {
-    var articlesCatch = await fetch("http://localhost:3000/api/products")
-    return await articlesCatch.json();
+    let apiFind = await fetch("http://localhost:3000/api/products")
+    return await apiFind.json();
 }
 
 async function domFunction() {
-    var result = await Articles ()
-    .then(function (resultatAPI){
-        const articles = resultatAPI;
-        console.table(articles);
-        for (let article in articles) {
+    let result = await Articles ()
+    .then(function (searchResult){
+        const apiRes = searchResult;
+        console.table(apiRes);
+        for (let article in apiRes) {
 
-            // Creation des éléments
-            let productLink = document.createElement("a");
-            document.querySelector(".items").appendChild(productLink);
-            productLink.href = `product.html?id=${resultatAPI[article]._id}`;
+            // Creation des éléments / Page index.js
+            let htmlItemA = document.createElement("a"); 
+            document.querySelector(".items").appendChild(htmlItemA);
+            htmlItemA.href = `product.html?id=${searchResult[article]._id}`;
 
-            let productArticle = document.createElement("article");
-            productLink.appendChild(productArticle);
+            let htmlItemArticle = document.createElement("article");
+            htmlItemA.appendChild(htmlItemArticle);
 
-            let productImg = document.createElement("img");
-            productArticle.appendChild(productImg);
-            productImg.src = resultatAPI[article].imageUrl;
-            productImg.alt = resultatAPI[article].altTxt;
+            let htmlItemImage = document.createElement("img");
+            htmlItemArticle.appendChild(htmlItemImage);
+            htmlItemImage.src = searchResult[article].imageUrl;
+            htmlItemImage.alt = searchResult[article].altTxt;
 
-            let productName = document.createElement("h3");
-            productArticle.appendChild(productName);
-            productName.classList.add("productName");
-            productName.innerHTML = resultatAPI[article].name;
+            let htmlItemName = document.createElement("h3");
+            htmlItemArticle.appendChild(htmlItemName);
+            htmlItemName.classList.add("htmlItemName");
+            htmlItemName.innerHTML = searchResult[article].name;
 
-            let productDescription = document.createElement("p");
-            productArticle.appendChild(productDescription);
-            productDescription.classList.add("productName");
-            productDescription.innerHTML = resultatAPI[article].description;
+            let htmlItemDescript = document.createElement("p");
+            htmlItemArticle.appendChild(htmlItemDescript);
+            htmlItemDescript.classList.add("htmlItemName");
+            htmlItemDescript.innerHTML = searchResult[article].description;
         }
     })
+    // Déclaration ERREUR
     .catch (function(error){
         return error;
     });
