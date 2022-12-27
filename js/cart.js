@@ -1,190 +1,161 @@
-// Récupération du contenu du panier à partir du localstorage
-let storageLocal = localStorage.getItem('basket');
-let pro = JSON.parse(storageLocal);
 
-// Récupération de l'élement "cart__items"
-var cartItem = document.querySelector('#cart__items');
+//Lien avec LocalStorage et conditions
+let storageLocal = JSON.parse(localStorage.getItem("produit"));
+console.table(storageLocal);
 
-// Affichage des produits dans la page panier (avec les prix en fetch)
-function cartKanap(produit) {
-    // AFFICHAGE DU/DES PRODUIT(S) PANIER
-    // insertion des articles
-    var createArticle = document.createElement('article');
-    createArticle.className = 'cart__item';
-    createArticle.setAttribute('data-id', produit.id);
-    createArticle.setAttribute('data-color', produit.pColor);
-    cartItem.appendChild(createArticle);
+// Declaration constante
+const panierVide = document.querySelector("#cart__items");
 
-    // insertion div de l'img
-    var createDivIMG = document.createElement('div');
-    createDivIMG.className = 'cart__item__img';
-    createArticle.appendChild(createDivIMG);
+ 
+// Condition panier vide
+function addToPanier(){
+    if (storageLocal === null || storageLocal == 0) {
+        const noArticle = `<p>Le panier ne contient aucun article</p>`;
+        panierVide.innerHTML = noArticle;
+    } else {
+        for (let produit in storageLocal){
+            
+            // Création et modifications des élements /page cart.js
+            let cartItemArticle = document.createElement("article");
+            document.querySelector("#cart__items").appendChild(cartItemArticle);
+            cartItemArticle.className = "cart__item";
+            cartItemArticle.setAttribute('data-id', storageLocal[produit].callProductId);
+            
+            let cartItemDiv = document.createElement("div");
+            cartItemArticle.appendChild(cartItemDiv);
+            cartItemDiv.className = "cart__item__img";
+            
+            let cartItemImage = document.createElement("img");
+            cartItemDiv.appendChild(cartItemImage);
+            cartItemImage.src = storageLocal[produit].pImage;
+            cartItemImage.alt = storageLocal[produit].pTXT;
+            
+            let cartItemContent = document.createElement("div");
+            cartItemArticle.appendChild(cartItemContent);
+            cartItemContent.className = "cart__item__content";
+            
+            let cartItemPrice = document.createElement("div");
+            cartItemContent.appendChild(cartItemPrice);
+            cartItemPrice.className = "cart__item__content__titlePrice";
+            
+            let cartItemTitle = document.createElement("h2");
+            cartItemPrice.appendChild(cartItemTitle);
+            cartItemTitle.innerHTML = storageLocal[produit].pName;
+            
+            let cartItemColor = document.createElement("p");
+            cartItemTitle.appendChild(cartItemColor);
+            cartItemColor.innerHTML = storageLocal[produit].pColor;
+            cartItemColor.style.fontSize = "20px";
 
-    // insertion des images
-    var createPict = document.createElement('img');
-    createPict.setAttribute('src', produit.img);
-    createPict.setAttribute('alt', "Photographie d'un canapé");
-    createDivIMG.appendChild(createPict);
-
-    // insertion div content description
-    var createDivContDes = document.createElement('div');
-    createDivContDes.className = 'cart__item__content';
-    createArticle.appendChild(createDivContDes);
-
-    // insertion div description
-    var createDivDes = document.createElement('div');
-    createDivDes.className = 'cart__item__content__description';
-    createDivContDes.appendChild(createDivDes);
-
-    // insertion H2
-    var createH2 = document.createElement('h2');
-    createH2.textContent = produit.name;
-    createDivDes.appendChild(createH2);
-
-    // insertion P color
-    var createpColor = document.createElement('p');
-    createpColor.textContent = "Couleur : " + produit.color;
-    createDivDes.appendChild(createpColor);
-
-    // recupération du prix en utilisant l'id du produit
-    var productUnit = "";
-    fetch("http://localhost:3000/api/products/" + produit.id)
-    .then(response => response.json())
-    .then(async function (resultatAPI) {
-        productUnit = await resultatAPI;
-        // insertion P price
-        var createpPrice = document.createElement('p');
-        createpPrice.textContent = "Prix : " + productUnit.price + " € / canapé";
-        createDivDes.appendChild(createpPrice);
-    })
-    .catch(error => alert("Erreur : " + error));
-
-    // insertion div content settings
-    var createDivContSet = document.createElement('div');
-    createDivContSet.className = 'cart__item__content__settings';
-    createDivContDes.appendChild(createDivContSet);
-
-    // insertion div settings quantity
-    var createDivContSetQuantity = document.createElement('div');
-    createDivContSetQuantity.className = 'cart__item__content__settings__quantity';
-    createDivContSet.appendChild(createDivContSetQuantity);
-
-    // insertion P quantity
-    var createpQuantity = document.createElement('p');
-    createpQuantity.textContent = "Qté :";
-    createDivContSetQuantity.appendChild(createpQuantity);
-
-    // insertion input quantity
-    var createInputQuantity = document.createElement('input');
-    createInputQuantity.className = 'itemQuantity';
-    createInputQuantity.setAttribute('type', 'number');
-    createInputQuantity.setAttribute('name', 'itemQuantity');
-    createInputQuantity.setAttribute('min', '0');
-    createInputQuantity.setAttribute('max', '100');
-    createInputQuantity.setAttribute('value', produit.quantity);
-    createDivContSetQuantity.appendChild(createInputQuantity);
-
-    // insertion div settings delete
-    var createDivContSetDel = document.createElement('div');
-    createDivContSetDel.className = 'cart__item__content__settings__delete';
-    createDivContSet.appendChild(createDivContSetDel);
-
-    // insertion P delete
-    var createpDelete = document.createElement('p');
-    createpDelete.className = 'deleteItem';
-    createpDelete.textContent = "Supprimer";
-    createDivContSetDel.appendChild(createpDelete);
-}
-
-// Récupération de produit dans l'API via son id 
-async function getProduct(id) {
-    return fetch("http://localhost:3000/api/products/" + id)
-    .then(response => response.json())
-    .catch(error => alert("Erreur : " + error));
-}
-
-// SI le panier est vide, afficher "panier vide" 
-// SINON parser le panier, et utiliser la function showproductbasket 
-async function showCart() {
-    if (storageLocal == null) {
-        var createpEmpty = document.createElement('p');
-        createpEmpty.textContent = 'Votre panier est vide';
-        cartItem.appendChild(createpEmpty);
-    } else {   
-        var totalPrice = 0;
-        for (var i = 0 ; i < pro.products.length; i++) {
-            basketProduct = pro.products[i];
-            cartKanap(basketProduct);
-            var productsPrice = await getProduct(basketProduct.id);
-            var productQuantity = basketProduct.quantity;
-            totalPrice += productsPrice.price * productQuantity;
-            let totalPriceElt = document.querySelector('#totalPrice');
-            totalPriceElt.textContent = totalPrice;
+              let cartItemEuro = document.createElement("p");
+              cartItemPrice.appendChild(cartItemEuro);
+               cartItemEuro.innerHTML = storageLocal[produit].pPrice + " €";
+            
+            let itemSett = document.createElement("div");
+            cartItemContent.appendChild(itemSett);
+            itemSett.className = "cart__item__content__settings";
+            
+            let cartSettings = document.createElement("div");
+            itemSett.appendChild(cartSettings);
+            cartSettings.className = "cart__item__content__settings__quantity";
+            
+            let cartItemQte = document.createElement("p");
+            cartSettings.appendChild(cartItemQte);
+            cartItemQte.innerHTML = "Qté : ";
+            
+            let cartItemQuantity = document.createElement("input");
+            cartSettings.appendChild(cartItemQuantity);
+            cartItemQuantity.value = storageLocal[produit].pQuantity;
+            cartItemQuantity.className = "itemQuantity";
+            cartItemQuantity.setAttribute("type", "number");
+            cartItemQuantity.setAttribute("min", "1");
+            cartItemQuantity.setAttribute("max", "100");
+            cartItemQuantity.setAttribute("name", "itemQuantity");
+            
+            let cartDelete = document.createElement("div");
+            itemSett.appendChild(cartDelete);
+            cartDelete.className = "cart__item__content__settings__delete";
+            
+            let cartDlt = document.createElement("p");
+            cartDelete.appendChild(cartDlt);
+            cartDlt.className = "deleteItem";
+            cartDlt.innerHTML = "Supprimer";
         }
-        let totalQuantity = document.querySelector('#totalQuantity');
-        totalQuantity.textContent = pro.totalQuantity;
-        changeQuantity()
-        delProduct()
+    }}
+    addToPanier();
+    // Fin de Fonction
+    
+    
+    // Mise en place des options de récupération du Total
+    
+    function totalCost(){
+        
+        let totalItem = document.getElementsByClassName('itemQuantity');
+        let numberItem = totalItem.length,
+        totalOfNumber = 0;
+        for (let qtt = 0; qtt < numberItem; ++qtt) {
+            totalOfNumber += totalItem[qtt].valueAsNumber;
+        }
+        let itemPQuantity = document.getElementById('totalQuantity');
+        itemPQuantity.innerHTML = totalOfNumber;
+        console.log(totalOfNumber);
+        
+        // Calcul Prix Total
+        totalPrice = 0;
+        
+        for (let qtt = 0; qtt < numberItem; ++qtt) {
+            totalPrice += (totalItem[qtt].valueAsNumber * storageLocal[qtt].pPrice);
+        }
+        let recupPrice = document.getElementById('totalPrice');
+        recupPrice.innerHTML = totalPrice ;
+        console.log(totalPrice);
     }
-}
-showCart();
-
-// Changement quantité et prix
-function changeQuantity() {
-    var quantityItem = document.querySelectorAll('.itemQuantity');
-    for (let k = 0; k < quantityItem.length; k++) { 
-        quantityItemUnit = quantityItem[k];
-        quantityItemUnit.addEventListener('change', function(event) {
-            for (var l = 0 ; l < pro.products.length; l++) {
-                basketProduct = pro.products[l];
-                var articleQuantityItemID = event.target.closest('article').getAttribute("data-id");
-                var articleQuantityItemColor = event.target.closest('article').getAttribute("data-color");
-                newQuantityValue = event.target.valueAsNumber;
+    totalCost();
+    
+    
+    
+    // Mise en place des options de suppression Produit
+    function deleteToCart() {
+        let dltButton = document.querySelectorAll(".deleteItem");
+        
+        for (let iDlt = 0; iDlt < dltButton.length; iDlt++){
+            dltButton[iDlt].addEventListener("click" , (event) => {
+                event.preventDefault();
                 
-                if (basketProduct.id == articleQuantityItemID && basketProduct.color == articleQuantityItemColor) {
-                    qtyToAdd = newQuantityValue - basketProduct.quantity;
-                    basketProduct.quantity = newQuantityValue;
-                    pro.totalQuantity = pro.totalQuantity + qtyToAdd;
-                    let lineBasket = JSON.stringify(pro);
-                    localStorage.setItem("basket", lineBasket);
-                    window.location.reload();
-                }
-            }  
-        })
-    };
-}
-
-// Suppression d'un canapé
-function delProduct() {
-    var delItem = document.querySelectorAll('.deleteItem');
-    for (let j = 0; j < delItem.length; j++) {
-        delItemUnit = delItem[j];
-        delItemUnit.addEventListener('click', function(event) {
-            var articleDelItemID = event.target.closest('article').getAttribute("data-id");
-            var articleDelItemColor = event.target.closest('article').getAttribute("data-color");
-            
-            var basket = JSON.parse(storageLocal);   
-            productToDel = basket.products.find(el => el.id == articleDelItemID && el.color == articleDelItemColor);
-            
-            result = basket.products.filter(el => el.id !== articleDelItemID || el.color !== articleDelItemColor);
-            basket.products = result;
-
-            newQuantity = basket.totalQuantity - productToDel.quantity;
-            basket.totalQuantity = newQuantity;
-            priceToDel = productToDel.quantity * productToDel.price;
-            alert('Vous avez bien supprimé votre produit du panier !');
-
-            if (basket.totalQuantity == 0) {
-                localStorage.clear();
-                window.location.reload()
-            } else {
-                let lineBasket = JSON.stringify(basket);
-                localStorage.setItem("basket", lineBasket);
-                window.location.reload()
-            }
-        })
-    };
-}
+                // Confirmation suppression + condition ID et Couleur 
+                let deleteWithId = storageLocal[iDlt].callProductId;
+                let deleteWithColor = storageLocal[iDlt].pColor;
+                storageLocal = storageLocal.filter( el => el.callProductId !== deleteWithId || el.pColor !== deleteWithColor );
+                localStorage.setItem("produit", JSON.stringify(storageLocal));
+                
+                alert("Ce produit a bien été supprimé du panier");
+                location.reload();
+            })
+        }
+    }
+    deleteToCart();
+    // Fin de Fonction
+    
+    // Mise en place des options de modification Produit
+    function totalModif () {
+        let modifValue = document.querySelectorAll(".itemQuantity");
+        
+        for (let iQtt = 0; iQtt < modifValue.length; iQtt++){
+            modifValue[iQtt].addEventListener("change" , (event) => {
+                event.preventDefault();
+                
+                // Confirmation modification + condition ID et Couleur 
+                let cartModifQtt = storageLocal[iQtt].pQuantity;
+                let cartQuantitéModif = modifValue[iQtt].valueAsNumber;
+                const responseProduct = storageLocal.find((x) => x.cartQuantitéModif !== cartModifQtt);
+                responseProduct.pQuantity = cartQuantitéModif;
+                storageLocal[iQtt].pQuantity = responseProduct.pQuantity;   
+                localStorage.setItem("produit", JSON.stringify(storageLocal));
+                location.reload();
+            })
+        }
+    }
+    totalModif();
     // Fin de Fonction
     
     //Formulaire Regex + expressions régulières
