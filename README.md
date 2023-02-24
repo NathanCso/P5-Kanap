@@ -6,7 +6,7 @@ Construisez un site e-commerce en JavaScript
 
 Prérequis: 
  
-                 Vous devez avoir nodejs et npm installé sur votre ordinateur
+                 Vous devez avoir Nodejs et NPM installé sur votre ordinateur
 
 Installation:
 
